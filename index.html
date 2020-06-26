@@ -53,15 +53,6 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/@openactive/skos/dist/skos.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-      // This demo is based on https://neofusion.github.io/hierarchy-select/
-
-      // Using source files:
-      // - https://neofusion.github.io/hierarchy-select/v2/dist/hierarchy-select.min.js
-      // - https://neofusion.github.io/hierarchy-select/v2/dist/hierarchy-select.min.css
-      // - https://www.openactive.io/skos.js/dist/skos.min.js
-
-      // ** Example of how to render a hierarchy from the activity list **
-
       function renderTree(concepts, level, parent) {
         var output = [];
 
@@ -157,12 +148,10 @@
 
       $(function() {
         // Load the activity list
-        // (note this file should be copied to your server on a nightly cron and served from there)
         $.getJSON('https://openactive.io/activity-list/activity-list.jsonld', function(data) {
           // Use SKOS.js to read the file (https://www.openactive.io/skos.js/)
           var scheme = new skos.ConceptScheme(data);
 
-          // Render the activity list in a format the HierarchySelect will understand
           renderTree(scheme.getTopConcepts(), 1, $('#activity-list-dropdown'));
         });
 
