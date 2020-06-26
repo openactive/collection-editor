@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>OpenActive Activity List ConceptCollection Editor</title>
+    <title>Activity List ConceptCollection Editor</title>
     <style>
       body {
         font-family: Helvetica;
@@ -42,6 +42,13 @@
         padding: 1rem;
       }
 
+      .cascade-link {
+        font-size: 0.6em;
+        color: #0000AA;
+        padding-left: 3px;
+        display: inline-block;
+      }
+
     </style>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/@openactive/skos/dist/skos.min.js" type="text/javascript"></script>
@@ -71,18 +78,20 @@
             hidden = concept.hiddenLabel.join(' / ')
           }
 
+          var identifier = concept.id.substring(concept.id.indexOf('#') + 1);
+
           // Use jQuery to escape all values when outputting HTML
           var li = $("<li/>", {
+            id: 'group-' + identifier,
             "class": "dropdown-item",
             "data-value": concept.id,
             "data-hidden": hidden,
             "data-level": level,
-            "href": "#",
             text: label
           });
 
           var checkbox = $("<input/>", {
-            id: concept.id.substring(concept.id.indexOf('#') + 1),
+            id: identifier,
             value: concept.id,
             class: 'concept-check',
             type: 'checkbox'
@@ -95,7 +104,29 @@
           $('#definition').bind("keyup change", renderCollection);
 
           var narrower = concept.getNarrower();
-          if (narrower) {
+          if (Array.isArray(narrower) && narrower.length > 0) {
+            var checkLink = $("<a/>", {
+              "class": "cascade-link",
+              "href": "#",
+              text: "[check]"
+            });
+            checkLink.appendTo(li);
+            checkLink.click(function() {
+              $("#group-" + identifier + " .concept-check").prop("checked", true);
+              renderCollection();
+            })
+
+            var uncheckLink = $("<a/>", {
+              "class": "cascade-link",
+              "href": "#",
+              text: "[uncheck]"
+            });
+            uncheckLink.appendTo(li);
+            uncheckLink.click(function() {
+              $("#group-" + identifier + " .concept-check").prop("checked", false);
+              renderCollection();
+            })
+
             var ul = $("<ul/>", {
               "class": "dropdown-item"
             });
@@ -202,12 +233,12 @@
   <body>
     <div class="container">
       <div class="activity-list">
-        <h1>OpenActive Activity List ConceptCollection Editor</h1>
+        <h1>Activity List ConceptCollection Editor</h1>
         <p>
           Edit the ConceptCollection below, or paste in an existing ConceptCollection on the right hand side. Alternatively load a file using the "Choose file" button below.
         </p>
         <p>
-          <input type='file' onchange='openFile(event)'>
+          <input type='file' accept='application/json' onchange='openFile(event)'>
         </p>
         <p>When you've finished, make sure you save your changes using the "Download" button.
         </p>
