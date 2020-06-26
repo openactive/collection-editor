@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>Activity List ConceptCollection Editor</title>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openactive/skos/dist/skos.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+// This demo is based on https://neofusion.github.io/hierarchy-select/
+
+// Using source files:
+// - https://neofusion.github.io/hierarchy-select/v2/dist/hierarchy-select.min.js
+// - https://neofusion.github.io/hierarchy-select/v2/dist/hierarchy-select.min.css
+// - https://www.openactive.io/skos.js/dist/skos.min.js
+
+// ** Example of how to render a hierarchy from the activity list **
+
+function renderTree(concepts, level, parent) {
+  var output = [];
+  
+  // Recursively .getNarrower() on concepts
+  concepts.forEach(function(concept) {
+    var label = concept.prefLabel;
+    var hidden = "";
+    // Include altLabels (e.g. Group Cycling) to make them visible to the user
+    if (concept.altLabel && concept.altLabel.length > 0) {
+      label = label + ' / ' + concept.altLabel.join(' / ')
+    }
+    // Include hiddenLabels (e.g. 5aside) as hidden so they will still match search terms
+    if (concept.hiddenLabel && concept.hiddenLabel.length > 0) {
+      hidden = concept.hiddenLabel.join(' / ')
+    }
+    
+    // Use jQuery to escape all values when outputting HTML
+    var li = $( "<li/>", {
+      "class": "dropdown-item",
+      "data-value": concept.id,
+      "data-hidden": hidden,
+      "data-level": level,
+      "href": "#",
+      text: label
+    });
+    
+    var checkbox = $( "<input/>", {
+			id: concept.id.substring(concept.id.indexOf('#')+1),
+      value: concept.id,
+      class: 'concept-check',
+      type: 'checkbox'
+    });
+    checkbox.prependTo(li);
+    
+    checkbox.click(renderCollection);
+    
+    var narrower = concept.getNarrower();
+    if (narrower) {
+      var ul = $( "<ul/>", {
+        "class": "dropdown-item"
+      });
+      renderTree(narrower, level + 1, ul);
+      ul.appendTo(li);
+    }
+    
+    li.appendTo(parent);
+  });
+}
+
+function renderCollection() {
+	var collection = {
+    "@context": "https://openactive.io/",
+    "@type": "ConceptCollection",
+    "@id": "https://openactive.io/activity-list/collections/cardio.jsonld",
+    "prefLabel": "Cardio",
+    "inScheme": "https://openactive.io/activity-list",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "definition": "Group Exercise and Dance classes considered good for Cardio.",
+    "member": $('.concept-check:checkbox:checked').map(function(){
+      return $(this).val();
+    }).get()
+  };
+  
+  $("#collection").val(JSON.stringify(collection, null, 2));
+}
+
+// ** Example of displaying this hierarchy **
+
+$('#collection').on('input', function() {
+		try {
+    var collection = JSON.parse($("#collection").val());
+    
+    $('.concept-check').prop("checked", false);
+    
+    if (Array.isArray(collection.member)) {
+    	collection.member.forEach(function(id) {
+      	var identifier = id.substring(id.indexOf('#')+1);
+
+        $('#' + identifier).prop("checked", true);
+      });
+    }
+    } catch (err) {
+    	alert(err);
+    }
+});
+
+$(function() {
+  // Load the activity list
+  // (note this file should be copied to your server on a nightly cron and served from there)
+  $.getJSON('https://openactive.io/activity-list/activity-list.jsonld', function(data) {
+    // Use SKOS.js to read the file (https://www.openactive.io/skos.js/)
+    var scheme = new skos.ConceptScheme(data);
+    
+    // Render the activity list in a format the HierarchySelect will understand
+    renderTree(scheme.getTopConcepts(), 1, $('#activity-list-dropdown'));
+  });
+});
+
+</script>
+</head>
+<body>
+<ul id="activity-list-dropdown">
+</ul>
+
+<textarea id="collection"></textarea>
+</body>
+</html>
