@@ -94,9 +94,9 @@
           checkbox.prependTo(li);
 
           checkbox.click(renderCollection);
-          $('#jsonId').bind("keyup change", renderCollection);
-          $('#prefLabel').bind("keyup change", renderCollection);
-          $('#definition').bind("keyup change", renderCollection);
+          $('#jsonId').change(renderCollection);
+          $('#prefLabel').change(renderCollection);
+          $('#definition').change(renderCollection);
 
           var narrower = concept.getNarrower();
           if (Array.isArray(narrower) && narrower.length > 0) {
