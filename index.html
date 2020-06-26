@@ -93,26 +93,6 @@ function renderCollection() {
   $("#collection").val(JSON.stringify(collection, null, 2));
 }
 
-// ** Example of displaying this hierarchy **
-
-$('#collection').on('input', function() {
-		try {
-    var collection = JSON.parse($("#collection").val());
-    
-    $('.concept-check').prop("checked", false);
-    
-    if (Array.isArray(collection.member)) {
-    	collection.member.forEach(function(id) {
-      	var identifier = id.substring(id.indexOf('#')+1);
-
-        $('#' + identifier).prop("checked", true);
-      });
-    }
-    } catch (err) {
-    	alert(err);
-    }
-});
-
 $(function() {
   // Load the activity list
   // (note this file should be copied to your server on a nightly cron and served from there)
@@ -122,6 +102,24 @@ $(function() {
     
     // Render the activity list in a format the HierarchySelect will understand
     renderTree(scheme.getTopConcepts(), 1, $('#activity-list-dropdown'));
+  });
+	
+  $('#collection').on('input', function() {
+    try {
+    var collection = JSON.parse($("#collection").val());
+
+    $('.concept-check').prop("checked", false);
+
+    if (Array.isArray(collection.member)) {
+	collection.member.forEach(function(id) {
+	var identifier = id.substring(id.indexOf('#')+1);
+
+	$('#' + identifier).prop("checked", true);
+      });
+    }
+    } catch (err) {
+    	alert(err);
+    }
   });
 });
 
