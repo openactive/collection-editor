@@ -149,11 +149,11 @@
         var collection = {
           "@context": "https://openactive.io/",
           "@type": "ConceptCollection",
-          "@id": $('#jsonId').val(),
-          "prefLabel": $('#prefLabel').val(),
+          "@id": $('#jsonId').val().trim(),
+          "prefLabel": $('#prefLabel').val().trim(),
           "inScheme": "https://openactive.io/activity-list",
           "license": "https://creativecommons.org/licenses/by/4.0/",
-          "definition": $('#definition').val(),
+          "definition": $('#definition').val().trim(),
           "member": Array.from(new Set($('.concept-check:checkbox:checked').map(function() {
             return $(this).val();
           }).get())).sort()
