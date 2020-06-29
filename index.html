@@ -169,6 +169,17 @@
           var scheme = new skos.ConceptScheme(data);
 
           renderTree(scheme.getTopConcepts(), 1, $('#activity-list-dropdown'));
+          
+          var url = window.location.hash.substring(window.location.hash.indexOf('=') + 1);
+          if (url) {
+            $.getJSON(url, function(data) {
+              $("#collection").val(JSON.stringify(data, null, 2));
+              processFile();
+            }).fail(function() {
+              alert( "Error loading url: " + url );
+            });
+          }
+          
         });
 
         $('#download').click(function() {
