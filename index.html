@@ -57,6 +57,10 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/@openactive/skos/dist/skos.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+    	function getIdentifier(id) {
+        return id.substring(id.indexOf('#') + 1);
+      }
+    
       function renderTree(concepts, level, parent) {
         var output = [];
 
@@ -73,12 +77,11 @@
             hidden = concept.hiddenLabel.join(' / ')
           }
 
-          var identifier = concept.id.substring(concept.id.indexOf('#') + 1);
+          var identifier = getIdentifier(concept.id);
 
           // Use jQuery to escape all values when outputting HTML
           var li = $("<li/>", {
-            id: 'group-' + identifier,
-            "class": "dropdown-item",
+            "class": "dropdown-item " + identifier,
             "data-value": concept.id,
             "data-hidden": hidden,
             "data-level": level,
@@ -86,14 +89,16 @@
           });
 
           var checkbox = $("<input/>", {
-            id: identifier,
             value: concept.id,
-            class: 'concept-check',
+            class: 'concept-check ' + identifier,
             type: 'checkbox'
           });
           checkbox.prependTo(li);
 
-          checkbox.click(renderCollection);
+          checkbox.click(function() {
+          	$('.concept-check.' + identifier).prop("checked", this.checked);
+            renderCollection();
+          });
           $('#jsonId').change(renderCollection);
           $('#prefLabel').change(renderCollection);
           $('#definition').change(renderCollection);
@@ -107,7 +112,10 @@
             });
             checkLink.appendTo(li);
             checkLink.click(function() {
-              $("#group-" + identifier + " .concept-check").prop("checked", true);
+            	$('.dropdown-item.' + identifier + ' .concept-check:checkbox:not(:checked)').map(function() {
+              	$(".concept-check." + getIdentifier($(this).val())).prop("checked", true);
+              })
+              
               renderCollection();
             })
 
@@ -118,7 +126,11 @@
             });
             uncheckLink.appendTo(li);
             uncheckLink.click(function() {
-              $("#group-" + identifier + " .concept-check").prop("checked", false);
+              $('.dropdown-item.' + identifier + ' .concept-check:checkbox:checked').map(function() {
+              	$(".concept-check." + getIdentifier($(this).val())).prop("checked", false);
+              })
+            
+              $(".dropdown-item." + identifier + " .concept-check").prop("checked", false);
               renderCollection();
             })
 
@@ -142,9 +154,9 @@
           "inScheme": "https://openactive.io/activity-list",
           "license": "https://creativecommons.org/licenses/by/4.0/",
           "definition": $('#definition').val(),
-          "member": $('.concept-check:checkbox:checked').map(function() {
+          "member": Array.from(new Set($('.concept-check:checkbox:checked').map(function() {
             return $(this).val();
-          }).get()
+          }).get())).sort()
         };
 
         $("#collection").val(JSON.stringify(collection, null, 2));
@@ -182,7 +194,7 @@
             collection.member.forEach(function(id) {
               var identifier = id.substring(id.indexOf('#') + 1);
 
-              $('#' + identifier).prop("checked", true);
+              $('.concept-check.' + identifier).prop("checked", true);
             });
           }
 
