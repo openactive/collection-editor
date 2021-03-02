@@ -16,6 +16,18 @@
         padding: 0px;
       }
 
+      label {
+        font-weight: bold;
+      }
+
+      .explainer {
+        display: block;
+        width: 100%;
+        font-size: 0.8em;
+        color: gray;
+        padding: 3px 0px;
+      }
+
       textarea {
         margin: 0px;
         width: 100%;
@@ -264,17 +276,19 @@
 
         <p>
           <label for="jsonId">@id</label>
+          <span class="explainer">The live URL where this ConceptCollection is located, e.g. <code>https://sportengland-jointhemovement.github.io/collections/boxing-fitness.jsonld</code></span>
           <input class="meta" id="jsonId">
         </p>
 
-
         <p>
           <label for="prefLabel">prefLabel</label>
+          <span class="explainer">The name of this ConceptCollection, e.g. <code>Boxing Fitness</code></span>
           <input class="meta" id="prefLabel">
         </p>
 
         <p>
           <label for="definition">definition</label>
+          <span class="explainer">The documented purpose of this ConceptCollection, e.g. <code>Activity types that fit under the 'Boxing Fitness' drop down filter on the Join the Movement virtual timetable.</code></span>
           <input class="meta" id="definition">
         </p>
 
